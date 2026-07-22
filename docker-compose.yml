@@ -1,0 +1,53 @@
+# Stack completa da masterclass: sobe tudo com `docker compose up -d`
+# Aluno nao gasta 20 minutos configurando Grafana: dashboard ja vem provisionado.
+services:
+
+  ollama:
+    image: ollama/ollama:latest
+    container_name: aiobs-ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama-models:/root/.ollama
+    # Apos subir, baixar o modelo uma unica vez:
+    #   docker exec -it aiobs-ollama ollama pull llama3.2
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: aiobs-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --web.enable-lifecycle
+    extra_hosts:
+      - "host.docker.internal:host-gateway"   # necessario no Linux
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: aiobs-grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./grafana/dashboards:/var/lib/grafana/dashboards:ro
+    depends_on:
+      - prometheus
+
+  jaeger:
+    image: jaegertracing/all-in-one:latest
+    container_name: aiobs-jaeger
+    ports:
+      - "16686:16686"   # UI
+      - "4317:4317"     # OTLP gRPC (Quarkus exporta pra ca)
+    environment:
+      - COLLECTOR_OTLP_ENABLED=true
+
+volumes:
+  ollama-models:

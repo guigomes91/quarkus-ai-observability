@@ -1,0 +1,10 @@
+global:
+  scrape_interval: 5s   # curto de proposito: dashboard reage rapido durante a aula
+
+scrape_configs:
+  - job_name: quarkus-ai-observability
+    metrics_path: /q/metrics
+    static_configs:
+      # host.docker.internal: Prometheus roda no container, Quarkus no host.
+      # No Linux, se nao resolver, adicionar extra_hosts no compose ou usar o IP da bridge.
+      - targets: ["host.docker.internal:8080"]

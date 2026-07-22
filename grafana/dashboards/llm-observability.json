@@ -1,0 +1,93 @@
+{
+  "title": "LLM Observability | getcaramelo.dev",
+  "uid": "llm-obs",
+  "timezone": "browser",
+  "refresh": "5s",
+  "time": { "from": "now-15m", "to": "now" },
+  "panels": [
+    {
+      "id": 1,
+      "title": "Tokens por minuto (input vs output)",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+      "targets": [
+        {
+          "expr": "sum by (type) (rate(llm_tokens_total[1m])) * 60",
+          "legendFormat": "{{type}}"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Custo acumulado (USD)",
+      "type": "stat",
+      "gridPos": { "h": 8, "w": 6, "x": 12, "y": 0 },
+      "targets": [
+        { "expr": "sum(llm_cost_usd_total)", "legendFormat": "USD" }
+      ],
+      "fieldConfig": {
+        "defaults": { "unit": "currencyUSD", "decimals": 4 }
+      }
+    },
+    {
+      "id": 3,
+      "title": "Custo por hora (projecao)",
+      "type": "stat",
+      "gridPos": { "h": 8, "w": 6, "x": 18, "y": 0 },
+      "targets": [
+        { "expr": "sum(rate(llm_cost_usd_total[5m])) * 3600", "legendFormat": "USD/h" }
+      ],
+      "fieldConfig": {
+        "defaults": { "unit": "currencyUSD", "decimals": 4 }
+      }
+    },
+    {
+      "id": 4,
+      "title": "Latencia da chamada LLM (p50 / p95 / p99)",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.50, sum by (le) (rate(llm_request_duration_seconds_bucket[5m])))",
+          "legendFormat": "p50"
+        },
+        {
+          "expr": "histogram_quantile(0.95, sum by (le) (rate(llm_request_duration_seconds_bucket[5m])))",
+          "legendFormat": "p95"
+        },
+        {
+          "expr": "histogram_quantile(0.99, sum by (le) (rate(llm_request_duration_seconds_bucket[5m])))",
+          "legendFormat": "p99"
+        }
+      ],
+      "fieldConfig": { "defaults": { "unit": "s" } }
+    },
+    {
+      "id": 5,
+      "title": "Tamanho do contexto enviado (media por request)",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 8, "x": 12, "y": 8 },
+      "targets": [
+        {
+          "expr": "rate(llm_context_size_tokens_sum[1m]) / rate(llm_context_size_tokens_count[1m])",
+          "legendFormat": "tokens/request"
+        }
+      ],
+      "description": "Painel-chave da fase 6: em conversa multi-turn sem controle, essa curva so sobe."
+    },
+    {
+      "id": 6,
+      "title": "Erros do provider",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 4, "x": 20, "y": 8 },
+      "targets": [
+        {
+          "expr": "sum by (exception) (rate(llm_errors_total[1m])) * 60",
+          "legendFormat": "{{exception}}"
+        }
+      ]
+    }
+  ],
+  "schemaVersion": 39,
+  "version": 1
+}
