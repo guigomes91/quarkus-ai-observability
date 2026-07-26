@@ -24,8 +24,23 @@ Projeto da masterclass de pos-graduacao em IA | [coders](https://codersuniversit
 
 ```bash
 docker compose up -d
-docker exec -it aiobs-ollama ollama pull llama3.2   # so na primeira vez
+docker exec -it aiobs-ollama ollama pull llama3.2:1b   # so na primeira vez
 ./mvnw quarkus:dev
+```
+
+```powershell
+curl.exe -X POST http://localhost:8080/chat -H "Content-Type: application/json" -d '{"sessionId":"teste-1","message":"O que sao virtual threads?"}'
+```
+
+Aquecendo o modelo (recomendado em notebook com CPU/RAM no limite): a primeira
+chamada carrega os pesos do modelo em memoria e pode demorar bem mais que as
+seguintes, arriscando estourar o timeout. Manda uma chamada de aquecimento
+antes de testar/gravar de verdade:
+
+```bash
+curl -X POST http://localhost:8080/chat \
+  -H "Content-Type: application/json" \
+  -d '{"sessionId":"warmup","message":"oi"}'
 ```
 
 Teste rapido:

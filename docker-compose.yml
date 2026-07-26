@@ -1,5 +1,4 @@
 # Stack completa da masterclass: sobe tudo com `docker compose up -d`
-# Aluno nao gasta 20 minutos configurando Grafana: dashboard ja vem provisionado.
 services:
 
   ollama:
@@ -10,7 +9,9 @@ services:
     volumes:
       - ollama-models:/root/.ollama
     # Apos subir, baixar o modelo uma unica vez:
-    #   docker exec -it aiobs-ollama ollama pull llama3.2
+    #   docker exec -it aiobs-ollama ollama pull llama3.2:1b
+    # Versao 1b escolhida de proposito: em notebook com CPU/RAM no limite,
+    # o llama3.2 (3B) padrao estoura o timeout de 60-120s facilmente.
 
   prometheus:
     image: prom/prometheus:latest

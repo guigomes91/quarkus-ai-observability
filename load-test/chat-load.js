@@ -11,8 +11,8 @@ import { check, sleep } from 'k6';
 const MODE = __ENV.MODE || 'spread';
 
 export const options = MODE === 'multiturn'
-  ? { vus: 3, duration: '5m' }     // 3 conversas longas
-  : { vus: 10, duration: '3m' };   // 10 usuarios, sessoes novas
+  ? { vus: 3, duration: '25m' }     // 3 conversas longas
+  : { vus: 10, duration: '30m' };   // 10 usuarios, sessoes novas
 
 const QUESTIONS = [
   'O que sao Virtual Threads no Java 21?',
@@ -37,7 +37,7 @@ export default function () {
 
   const res = http.post('http://localhost:8080/chat', payload, {
     headers: { 'Content-Type': 'application/json' },
-    timeout: '90s',
+    timeout: '240s',
   });
 
   check(res, { 'status 200': (r) => r.status === 200 });
